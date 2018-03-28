@@ -24,7 +24,6 @@ define([],function () {
         
         function loadImg(index) {
             
-            console.log(index)
             var imgSrc = arry[index]
 
             var newImgObj = new Image();
