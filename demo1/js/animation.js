@@ -48,7 +48,6 @@ define(['loadImg','timeLine'],function (loadImgFunc,TimeLine) {
                     elem.style.backgroundImage = "url(" + imgUrl + ")";
                     elem.style.backgroundPosition = positionArray[0] + "px " + positionArray[1] + "px";
 
-                    console.log(index,time)
 
                     if(index===len-1){
                         next();
@@ -115,13 +114,45 @@ define(['loadImg','timeLine'],function (loadImgFunc,TimeLine) {
         },
 
         _next:function () {
-            
+            var _this = this;
             if(this.index>=this.queue.length-1) return;
+
+            var taskObj = this.queue[this.index];
             this.index++;
-            this._runTask();
+            
+            taskObj.waitTime?setTimeout(function () {
+                _this._runTask();
+            },taskObj.waitTime):_this._runTask();
             
         },
+
+        restart:function () {
+            
+            if(this.state===Animation_Stop){
+                this.state = Animation_Start;
+                this.timeLine.restart();
+                return this;
+            }
+            
+        },
+        
+        then:function (cb) {
+
+            var taskFn = function (next) {
+                cb && cb();
+                next();
+            };
+            var taskType = SYNC_TASK;
+            return this._add(taskFn,taskType)
+        },
+
         pause:function () {
+            
+            if(this.state===Animation_Start){
+                this.state = Animation_Stop;
+                this.timeLine.stop();
+                return this;
+            }
             
         },
         repeat:function (times) {
@@ -156,8 +187,16 @@ define(['loadImg','timeLine'],function (loadImgFunc,TimeLine) {
 
         wait:function (time) {
 
+            this.queue[this.queue.length - 1].waitTime = time || 0;
+            return this;
             
-
+        },
+        
+        dispose:function () {
+            
+            this.timeLine.dispose();
+            this.queue = [];
+            
         },
 
         _add:function (taskFn,taskType) {

@@ -29,7 +29,7 @@
 
 
 
-    require(['animation'], function (animation) {
+    require(['animation'], function (Animation) {
 
         var $rabbit1 = $('rabbit1');
         var $rabbit2 = $('rabbit2');
@@ -44,12 +44,49 @@
         var imagesList = ['/demo1/img/rabbit-big.png', '/demo1/img/rabbit-lose.png', '/demo1/img/rabbit-win.png'];
 
         function test1() {
-            var a1 = new animation()
-            a1.loadImgList(imagesList).changePostition($rabbit1, rightRunningMap, imagesList[0]).repeatForver(500000);
+            var a1 = new Animation()
+            a1.loadImgList(imagesList).then(function () {
+                console.log('then')
+            }).changePostition($rabbit1, rightRunningMap, imagesList[0]).repeatForver();
             a1.start();
+
+            var running = true;
+            $rabbit1.addEventListener('click', function () {
+                if (running) {
+                    running = false;
+                    a1.pause();
+                } else {
+                    running = true;
+                    a1.restart();
+                }
+            });
+
+        }
+
+        /**
+         * 测试用列3
+         */
+        function test3() {
+            var winAnimation = (new Animation()).loadImgList(imagesList).changePostition($rabbit3, rabbitWinMap, imagesList[2]).repeat(3).then(function () {
+                console.log('win animation repeat 3 times and finished');
+                winAnimation.dispose();
+            });
+            winAnimation.start(200);
+        }
+
+        /**
+         * 测试用列4
+         */    function test4() {
+            var loseAnimation = (new Animation()).loadImgList(imagesList).changePostition($rabbit4, rabbitLoseMap, imagesList[1]).then(function () {
+                console.log('lose animation finished');
+                loseAnimation.dispose();
+            });
+            loseAnimation.start(200);
         }
 
         test1();
+        test3();
+        test4();
 
 
     });

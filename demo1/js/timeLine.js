@@ -38,6 +38,7 @@ define([],function () {
         this.state = START_INIT;
         this.timer = null;
         this.nowTime = '';
+        this.durTime = ''
         this.interVal = DEFAULT_INTERVAL;
         
         
@@ -45,6 +46,11 @@ define([],function () {
 
     TimeLine.prototype = {
 
+        dispose:function () {
+
+            cancelAnimationFrame(this.timer);
+        },
+        
         start:function (interVal) {
             
             if(this.state===START_START) return;
@@ -55,11 +61,27 @@ define([],function () {
             this.startTime(+new Date());
             
         },
+
+        restart:function () {
+            
+            if(this.state!==START_STOP) return;
+            
+            if(!this.durTime || !this.interVal) return;
+            
+            this.state = START_START;
+
+            this.startTime(+new Date() - this.durTime);
+        },
         
         stop:function () {
             if(this.state===START_STOP) return;
+            
             this.state = START_STOP;
 
+            if(this.nowTime){
+                this.durTime = +new Date() - this.nowTime;
+            }
+            
             cancelAnimationFrame(this.timer);
         },
         
